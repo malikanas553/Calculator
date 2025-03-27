@@ -1,0 +1,96 @@
+/*
+ * main.c
+ *
+ *  Created on: Mar 26, 2025
+ *      Author: LightStore
+ */
+#include "lcd.h"
+#include "keypad.h"
+#include "util/delay.h"
+#include "std_types.h"
+
+uint8 key = 0;
+uint8 operand = 0;
+
+Update_result(int * result)
+{
+
+}
+
+
+
+int main(void)
+{
+	int result = 0;
+	int num = 0;
+	uint8 prev = 0;
+
+	LCD_init();
+	while(1)
+	{
+		key = KEYPAD_getPressedKey();
+		if(key == ENTER)
+		{
+			LCD_clearScreen();
+			result = 0;
+			operand = 0;
+			num = 0;
+		}else if(key > 9 && prev != '=' ){
+
+			if(prev <= 9){
+
+				LCD_displayCharacter(key);
+				if(key == '=')
+				{
+					if (operand == '%') {
+						result /= num;
+					} else if (operand == '*') {
+						result *= num;
+					} else if (operand == '+') {
+						result += num;
+					} else if (operand == '-') {
+						result -= num;
+					} else if(operand == 0)
+					{
+						result = num;
+					}
+					LCD_moveCursor(1, 0);
+					LCD_intgerToString(result);
+					result = 0;
+					operand = 0;
+				}else
+				{
+
+					if (operand == '%') {
+						result /= num;
+					} else if (operand == '*') {
+						result *= num;
+					} else if (operand == '+') {
+						result += num;
+					} else if (operand == '-') {
+						result -= num;
+					}else
+					{
+						result = num;
+					}
+					operand = key;
+				}
+			}
+			num = 0;
+
+		}else if(key <= 9 && key >= 0)
+		{
+			if(prev == '=')
+			{
+				LCD_clearScreen();
+				operand = 0;
+				result = 0;
+			}
+			num = (num*10) + key;
+			LCD_intgerToString(key);
+		}
+		_delay_ms(400);
+		prev = key;
+	}
+
+}
